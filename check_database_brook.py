@@ -49,7 +49,7 @@ try:
                                 
                                 # exit from loop after user doesn't touch limit
                                 break
-                        # print(f"calc : {calc}")
+                        # print(f"user: {data['user']} calc : {calc}")
                         if calc > limit_users_transfer:
                             # User Should Be Banne
                             s=f"user: {row[1]} transfer: {calc}"
