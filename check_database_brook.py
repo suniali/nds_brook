@@ -51,7 +51,7 @@ try:
                                         bot=telepot.Bot(token)
                                         bot.sendMessage(reciver_id,"سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد")
                                     else:
-                                        print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
+                                        print(f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
                                 elif calc > warning_vip_users_transfer:
                                     # Send Warning Message
                                     s=f"user: {row[1]} transfer: {calc}"
@@ -61,7 +61,7 @@ try:
                                         bot=telepot.Bot(token)
                                         bot.sendMessage(reciver_id,f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید")
                                     else:
-                                        print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
+                                        print(f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
 
                                 # exit from loop after user doesn't touch limit
                                 break
@@ -75,7 +75,7 @@ try:
                                 bot=telepot.Bot(token)
                                 bot.sendMessage(reciver_id,"سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد")
                             else:
-                                print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
+                                print(f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
                        
                         elif calc > warning_users_transfer:
                             # Send Warning Message
@@ -86,7 +86,7 @@ try:
                                 bot=telepot.Bot(token)
                                 bot.sendMessage(reciver_id,f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید")
                             else:
-                                print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
+                                print(f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
                         
                         # exit from loop after user doesn't touch limit
                         break
