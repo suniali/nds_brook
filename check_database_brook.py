@@ -7,8 +7,8 @@ cr.init(autoreset=True)
 
 limit_users_transfer=1024
 limit_vip_users_transfer=5120
-warning_users_transfer=800
-warning_vip_users_transfer=4096
+warning_users_transfer=700
+warning_vip_users_transfer=4000
 
 vip_users=['jarvis_sky','Aliafagh']
 ultimate_user='mortezaparsa'
