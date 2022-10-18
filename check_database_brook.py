@@ -1,9 +1,13 @@
 import json
+import telepot
+from lib2to3.pgen2 import token
 import mysql.connector
 import colorama as cr
 from mysql.connector import Error
 
 cr.init(autoreset=True)
+
+token='5677357335:AAGauZANKo0qIspAMXJIPLqUixlrqYuhZ9Y'
 
 limit_users_transfer=1024
 limit_vip_users_transfer=5120
@@ -42,11 +46,23 @@ try:
                                     # User Should Be Banne
                                     s=f"user: {row[1]} transfer: {calc}"
                                     print(f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.CYAN}VIP {cr.Fore.YELLOW}{s}")
+                                    if "id" in data:
+                                        reciver_id=data['id']
+                                        bot=telepot.Bot(token)
+                                        bot.sendMessage(reciver_id,"سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد")
+                                    else:
+                                        print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
                                 elif calc > warning_vip_users_transfer:
                                     # Send Warning Message
                                     s=f"user: {row[1]} transfer: {calc}"
                                     print(f"{cr.Fore.YELLOW}Warning for {cr.Fore.CYAN}VIP {cr.Fore.WHITE}{s}")
-                                
+                                    if "id" in data:
+                                        reciver_id=data['id']
+                                        bot=telepot.Bot(token)
+                                        bot.sendMessage(reciver_id,f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید")
+                                    else:
+                                        print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
+
                                 # exit from loop after user doesn't touch limit
                                 break
                         # print(f"user: {data['user']} calc : {calc}")
@@ -54,10 +70,23 @@ try:
                             # User Should Be Banne
                             s=f"user: {row[1]} transfer: {calc}"
                             print(f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.YELLOW}{s}")
+                            if "id" in data:
+                                reciver_id=data['id']
+                                bot=telepot.Bot(token)
+                                bot.sendMessage(reciver_id,"سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد")
+                            else:
+                                print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
+                       
                         elif calc > warning_users_transfer:
                             # Send Warning Message
                             s=f"user: {row[1]} transfer: {calc}"
                             print(f"{cr.Fore.YELLOW}Warning for {cr.Fore.WHITE}{s}")
+                            if "id" in data:
+                                reciver_id=data['id']
+                                bot=telepot.Bot(token)
+                                bot.sendMessage(reciver_id,f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید")
+                            else:
+                                print(f"{cr.Fore.RED}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.RED}And Message Not Sent!")
                         
                         # exit from loop after user doesn't touch limit
                         break
@@ -69,6 +98,3 @@ finally:
         cursor.close()
         connection.close()
         print("MySQL connection is closed")
-
-
- 
