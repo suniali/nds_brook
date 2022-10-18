@@ -1,6 +1,9 @@
 import json
 import mysql.connector
+import colorama as cr
 from mysql.connector import Error
+
+cr.init(autoreset=True)
 
 try:
     connection = mysql.connector.connect(host='198.244.140.109',
@@ -25,12 +28,11 @@ try:
         with open("transfers_brook_list.json", "w") as outfile:
             outfile.write(json_object)
 
-        print("Data Downloaded Successfuly.")
+        print(f"{cr.Fore.GREEN}Data Downloaded Successfuly.")
 
 except Error as e:
-    print("Error while connecting to MySQL", e)
+    print(f"{cr.Fore.RED}Error while connecting to MySQL", e)
 finally:
     if connection.is_connected():
         cursor.close()
         connection.close()
-        print("MySQL connection is closed")
