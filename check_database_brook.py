@@ -37,15 +37,17 @@ def send_telegram_message(reciver_id: str, message: str):
 def read_baned_users():
     with open('baned_users_list.json', 'r') as openfile:
         # Reading from json file
+        print(f"read baned : {type(openfile)}")
         json_objects = json.load(openfile)
         openfile.close()
 
     return json_objects
 
 def write_ban_user():
+    json_objects = json.dumps(baned_users)
     with open('baned_users_list.json', 'w') as openfile:
         # Writing from List
-        json_objects = json.dump(baned_users)
+        print(f"write baned : {type(json_objects)}")
         openfile.write(json_objects)
         openfile.close()
 
@@ -140,8 +142,8 @@ def proccess_data(get_users_result: list, transfer_users_data: list):
                                     f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.CYAN}VIP {cr.Fore.YELLOW}{s}")
 
                                 # Baning Acount
-                                if check_if_user_is_baned(row[1]):
-                                    ban_result = ban_user(row[0])
+                                if not check_if_user_is_baned(row[1]):
+                                    ban_result = ban_user(row[0],row[1])
                                     if ban_result:
                                         print(
                                             f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
@@ -181,8 +183,8 @@ def proccess_data(get_users_result: list, transfer_users_data: list):
                             f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.YELLOW}{s}")
 
                         # Baning Acount
-                        if check_if_user_is_baned(row[1]):
-                            ban_result = ban_user(row[0])
+                        if not check_if_user_is_baned(row[1]):
+                            ban_result = ban_user(row[0],row[1])
                             if ban_result:
                                 print(
                                     f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
