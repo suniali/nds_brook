@@ -37,7 +37,6 @@ def send_telegram_message(reciver_id: str, message: str):
 def read_baned_users():
     with open('baned_users_list.json', 'r') as openfile:
         # Reading from json file
-        print(f"read baned : {type(openfile)}")
         json_objects = json.load(openfile)
         openfile.close()
 
@@ -47,7 +46,6 @@ def write_ban_user():
     json_objects = json.dumps(baned_users)
     with open('baned_users_list.json', 'w') as openfile:
         # Writing from List
-        print(f"write baned : {type(json_objects)}")
         openfile.write(json_objects)
         openfile.close()
 
