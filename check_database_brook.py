@@ -45,7 +45,7 @@ def read_baned_users():
 def write_ban_user():
     with open('baned_users_list.json', 'w') as openfile:
         # Writing from List
-        json_objects = json.dumps(baned_users)
+        json_objects = json.dump(baned_users)
         openfile.write(json_objects)
         openfile.close()
 
