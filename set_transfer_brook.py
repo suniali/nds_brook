@@ -19,7 +19,7 @@ try:
         d=[]
         #Writing to database
         for row in res:
-            s={"user": row[1],"transfer": row[7]}
+            s={"id":row[0],"user": row[1],"transfer": row[7]}
             d.append(s)
             
         # print(d)

@@ -11,7 +11,8 @@ res=requests.get(url=url)
 if str(res)=="<Response [200]>":
     datas=json.loads(res.text)['result']
     for data in datas:
-        if "message" in data:
+        if "message" in data and "from" in data["message"] and "username" in data["message"]["from"]:
+            # print(data['message']['from'])
             if data['message']['from']["id"]:
                 id=data['message']['from']["id"]
                 username=data['message']['from']["username"]
@@ -29,7 +30,7 @@ if str(res)=="<Response [200]>":
     for object in json_objects:
         for user in users:
             if object['user']==user['user']:
-                object.update({"id":user['id']})
+                object.update({"id_telegram":user['id']})
                 break
     
     # Writing file
