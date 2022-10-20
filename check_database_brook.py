@@ -21,7 +21,6 @@ limit_vip_users_transfer = 5120
 warning_users_transfer = 700
 warning_vip_users_transfer = 4000
 
-baned_users=[]
 vip_users = ['jarvis_sky', 'Aliafagh']
 ultimate_user = 'mortezaparsa'
 
@@ -35,23 +34,28 @@ def send_telegram_message(reciver_id: str, message: str):
     bot.sendMessage(reciver_id, message)
 
 def read_baned_users():
-    with open('baned_users_list.json', 'r') as openfile:
+    with open('baned_users_list.txt', 'r') as openfile:
         # Reading from json file
-        json_objects = json.load(openfile)
+        baned_users_list= openfile.readlines()
         openfile.close()
 
-    return json_objects
+    return baned_users_list
 
-def write_ban_user():
-    json_objects = json.dumps(baned_users)
-    with open('baned_users_list.json', 'w') as openfile:
+def write_ban_user(baned_users:list):
+    with open('baned_users_list.txt', 'w') as openfile:
         # Writing from List
-        openfile.write(json_objects)
+        for baned_user in baned_users:
+            u=baned_user.split()[0]
+            openfile.write(u)
+            openfile.write("\n")
+
         openfile.close()
 
-def check_if_user_is_baned(username:str):
-    for user in baned_users:
-        if user==username:
+def check_if_user_is_baned(username:str,baned_users:list):
+    # print(baned_users)
+    for baned_user in baned_users:
+        u=baned_user.split()[0]
+        if u==username:
             return True
         
     return False
@@ -71,13 +75,13 @@ def request_ban_user(id: str):
         return False
 
 
-def ban_user(id: str,username:str):
+def ban_user(id: str,username:str,baned_users:list):
     counter = 0
     while counter <= 5:
         result = request_ban_user(id)
         if result == True:
-            baned_users.append(username)
-            write_ban_user()
+            baned_users.append(f"{username}\n")
+            write_ban_user(baned_users)
             return True
 
         counter = counter+1
@@ -123,7 +127,7 @@ def read_transfer_users_data():
     return json_objects
 
 
-def proccess_data(get_users_result: list, transfer_users_data: list):
+def proccess_data(get_users_result: list, transfer_users_data: list,baned_users:list):
     for row in get_users_result:
         if row[1] != ultimate_user:
             for data in transfer_users_data:
@@ -140,8 +144,8 @@ def proccess_data(get_users_result: list, transfer_users_data: list):
                                     f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.CYAN}VIP {cr.Fore.YELLOW}{s}")
 
                                 # Baning Acount
-                                if not check_if_user_is_baned(row[1]):
-                                    ban_result = ban_user(row[0],row[1])
+                                if not check_if_user_is_baned(row[1],baned_users):
+                                    ban_result = ban_user(row[0],row[1],baned_users)
                                     if ban_result:
                                         print(
                                             f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
@@ -181,8 +185,8 @@ def proccess_data(get_users_result: list, transfer_users_data: list):
                             f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.YELLOW}{s}")
 
                         # Baning Acount
-                        if not check_if_user_is_baned(row[1]):
-                            ban_result = ban_user(row[0],row[1])
+                        if not check_if_user_is_baned(row[1],baned_users):
+                            ban_result = ban_user(row[0],row[1],baned_users)
                             if ban_result:
                                 print(
                                     f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
@@ -230,7 +234,7 @@ def check_brook_database():
         baned_users=read_baned_users()
 
         # Proccess Data
-        proccess_data(get_users_result, transfer_users_data)
+        proccess_data(get_users_result, transfer_users_data,baned_users)
 
 #-------------------------------------------------------------------------------------------
 # schedule.every(1).minutes.do(check_brook_database)
