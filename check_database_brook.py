@@ -9,12 +9,13 @@ from mysql.connector import Error
 
 cr.init(autoreset=True)
 
+
 class BrookData:
     def __init__(self):
-        self.token = '5677357335:AAGauZANKo0qIspAMXJIPLqUixlrqYuhZ9Y'
+        self.token = '5574072380:AAE9EwlaoM8bQcAK0Epexjo-mk2Iuugiswk'
+        self.reciver_id = "-1001833835639"
         self.a_token = 'ca48cd29edf80e30a57a8d705172fc2a97cf5c60653b421046eafe30cebb9ad1f51227b7f7002e3dc5c756c71c7ff9c1a1103bf49fd34ed6'
         self.ban_url = "https://irvpn.co/adminapi/ban_user"
-        self.ban_message = "سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد"
 
         self.limit_users_transfer = 1024
         self.limit_vip_users_transfer = 5120
@@ -27,32 +28,35 @@ class BrookData:
         # Get All Baned Users
         self.baned_users = self.read_baned_users()
 
-    def warning_message(self, calc: int):
-        return f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید"
+    def warning_message(self,username:str,calc: int):
+        return f"سلام وقت بخیر @{username} \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید"
 
-    def request_send_telegram_message(self,link:str):
+    def ban_message(self,username:str):
+        return f"سلام وقت بخیر @{username} \n با عرض پوزش اکانت شما بن شد"
+
+    def request_send_telegram_message(self, link: str):
         try:
             res = requests.get(link)
             if str(res) == "<Response [200]>":
                 return True
 
             else:
-                print(f"{cr.Fore.RED}{res}")
+                # print(f"{cr.Fore.RED}{res}")
                 return False
 
         except Error as e:
             print(f"{cr.Fore.RED}Error while sending Telegram Message", e)
             return False
 
-    def send_telegram_message(self, reciver_id: str, message: str):
-        link=f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={reciver_id}&text={message}"
+    def send_telegram_message(self, message: str):
+        link = f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={self.reciver_id}&text={message}"
         counter = 0
         while counter <= 5:
             result = self.request_send_telegram_message(link=link)
             if result == True:
                 return True
-            
-            counter=counter+1
+
+            counter = counter+1
 
         return False
 
@@ -94,7 +98,7 @@ class BrookData:
                 print(f"{cr.Fore.RED}{res}")
                 return False
         except Error as e:
-            print(f"{cr.Fore.RED}Error while connecting to MySQL", e)
+            print(f"{cr.Fore.RED}Error while Baning User", e)
             return False
 
     def ban_user(self, id: str, username: str):
@@ -130,11 +134,10 @@ class BrookData:
                     return False
 
             except Error as e:
-                print(f"{cr.Fore.RED}Error while connecting to MySQL", e)
+                print(f"{cr.Fore.RED}Error while connecting to Database For Getting Users", e)
                 if connection.is_connected():
                     cursor.close()
                     connection.close()
-                    print("MySQL connection is closed")
                 return False
 
     def read_transfer_users_data(self):
@@ -173,13 +176,11 @@ class BrookData:
                                                 f"{cr.Fore.RED} User {row[1]} Not Baned!!!")
 
                                         # Senging Message On Telegram
-                                        if "id_telegram" in data:
-                                            telegram_result=self.send_telegram_message(reciver_id=data['id_telegram'], message=self.ban_message)
-                                            if not telegram_result:
-                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
-                                        else:
+                                        telegram_result = self.send_telegram_message(
+                                            message=self.ban_message(username=row[1]))
+                                        if not telegram_result:
                                             print(
-                                                f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
+                                                f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
 
                                 elif calc > self.warning_vip_users_transfer:
                                     # Send Warning Message
@@ -188,14 +189,10 @@ class BrookData:
                                         f"{cr.Fore.YELLOW}Warning for {cr.Fore.CYAN}VIP {cr.Fore.WHITE}{s}")
 
                                     # Sending Telegram Message
-                                    if "id_telegram" in data:
-                                        telegram_result=self.send_telegram_message(
-                                            reciver_id=data['id_telegram'], message=self.warning_message(calc=calc))
-                                        if not telegram_result:
-                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
-                                    else:
+                                    telegram_result = self.send_telegram_message(message=self.warning_message(username=row[1],calc=calc))
+                                    if not telegram_result:
                                         print(
-                                            f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
+                                            f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
 
                                 # exit from loop after user doesn't touch limit
                                 break
@@ -218,14 +215,10 @@ class BrookData:
                                         f"{cr.Fore.RED} User {row[1]} Not Baned!!!")
 
                                 # Sending Telegram Message
-                                if "id_telegram" in data:
-                                    telegram_result=self.send_telegram_message(
-                                        reciver_id=data['id_telegram'], message=self.ban_message)
-                                    if not telegram_result:
-                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
-                                else:
+                                telegram_result = self.send_telegram_message(message=self.ban_message(username=row[1]))
+                                if not telegram_result:
                                     print(
-                                        f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
+                                        f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
 
                         elif calc > self.warning_users_transfer:
                             # Send Warning Message
@@ -234,14 +227,10 @@ class BrookData:
                                 f"{cr.Fore.YELLOW}Warning for {cr.Fore.WHITE}{s}")
 
                             # Sending Telegram Message
-                            if "id_telegram" in data:
-                                telegram_result=self.send_telegram_message(
-                                    reciver_id=data['id_telegram'], message=self.warning_message(calc=calc))
-                                if not telegram_result:
-                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
-                            else:
+                            telegram_result = self.send_telegram_message(message=self.warning_message(username=row[1],calc=calc))
+                            if not telegram_result:
                                 print(
-                                    f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
+                                    f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
 
                         # exit from loop after user doesn't touch limit
                         break
@@ -262,13 +251,12 @@ def start():
 
         # Proccess Data
         bd.proccess_data(get_users_result, transfer_users_data)
-    
+
     print(f"{cr.Fore.BLUE}-"*50)
 
 
-
 # -------------------------------------------------------------------------------------------
-schedule.every(1).minutes.do(start)
+schedule.every(15).minutes.do(start)
 
 while True:
     schedule.run_pending()
