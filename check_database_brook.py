@@ -262,6 +262,8 @@ def start():
 
         # Proccess Data
         bd.proccess_data(get_users_result, transfer_users_data)
+    
+    print("-"*50)
 
 
 
