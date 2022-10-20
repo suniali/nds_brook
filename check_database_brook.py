@@ -1,10 +1,8 @@
+from itertools import count
 import json
 import time
-import telepot
 import requests
 import schedule
-import threading
-from lib2to3.pgen2 import token
 import mysql.connector
 import colorama as cr
 from mysql.connector import Error
@@ -32,9 +30,31 @@ class BrookData:
     def warning_message(self, calc: int):
         return f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید"
 
+    def request_send_telegram_message(self,link:str):
+        try:
+            res = requests.get(link)
+            if str(res) == "<Response [200]>":
+                return True
+
+            else:
+                print(f"{cr.Fore.RED}{res}")
+                return False
+
+        except Error as e:
+            print(f"{cr.Fore.RED}Error while sending Telegram Message", e)
+            return False
+
     def send_telegram_message(self, reciver_id: str, message: str):
-        bot = telepot.Bot(self.token)
-        bot.sendMessage(reciver_id, message)
+        link=f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={reciver_id}&text={message}"
+        counter = 0
+        while counter <= 5:
+            result = self.request_send_telegram_message(link=link)
+            if result == True:
+                return True
+            
+            counter=counter+1
+
+        return False
 
     def read_baned_users(self):
         with open('baned_users_list.txt', 'r') as openfile:
@@ -154,8 +174,9 @@ class BrookData:
 
                                         # Senging Message On Telegram
                                         if "id_telegram" in data:
-                                            self.send_telegram_message(
-                                                reciver_id=data['id_telegram'], message=self.ban_message)
+                                            telegram_result=self.send_telegram_message(reciver_id=data['id_telegram'], message=self.ban_message)
+                                            if not telegram_result:
+                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
                                         else:
                                             print(
                                                 f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
@@ -168,8 +189,10 @@ class BrookData:
 
                                     # Sending Telegram Message
                                     if "id_telegram" in data:
-                                        self.send_telegram_message(
+                                        telegram_result=self.send_telegram_message(
                                             reciver_id=data['id_telegram'], message=self.warning_message(calc=calc))
+                                        if not telegram_result:
+                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
                                     else:
                                         print(
                                             f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
@@ -196,8 +219,10 @@ class BrookData:
 
                                 # Sending Telegram Message
                                 if "id_telegram" in data:
-                                    self.send_telegram_message(
+                                    telegram_result=self.send_telegram_message(
                                         reciver_id=data['id_telegram'], message=self.ban_message)
+                                    if not telegram_result:
+                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
                                 else:
                                     print(
                                         f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
@@ -210,8 +235,10 @@ class BrookData:
 
                             # Sending Telegram Message
                             if "id_telegram" in data:
-                                self.send_telegram_message(
+                                telegram_result=self.send_telegram_message(
                                     reciver_id=data['id_telegram'], message=self.warning_message(calc=calc))
+                                if not telegram_result:
+                                                print(f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
                             else:
                                 print(
                                     f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
@@ -221,22 +248,26 @@ class BrookData:
 
 
 # -------------------------------------------------------------------------------------------
-# schedule.every(1).minutes.do(check_brook_database)
+def start():
+    bd = BrookData()
+    get_users_result = bd.get_users()
 
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+    if get_users_result is False:
+        print(f"{cr.Fore.RED}Users Info Was Not Downloaded!!!")
+        exit()
 
-bd = BrookData()
-get_users_result = bd.get_users()
+    else:
+        # Get All Old Transfer Users Data
+        transfer_users_data = bd.read_transfer_users_data()
 
-if get_users_result is False:
-    print(f"{cr.Fore.RED}Users Info Was Not Downloaded!!!")
-    exit()
+        # Proccess Data
+        bd.proccess_data(get_users_result, transfer_users_data)
 
-else:
-    # Get All Old Transfer Users Data
-    transfer_users_data = bd.read_transfer_users_data()
 
-    # Proccess Data
-    bd.proccess_data(get_users_result, transfer_users_data)
+
+# -------------------------------------------------------------------------------------------
+schedule.every(1).minutes.do(start)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
