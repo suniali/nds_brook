@@ -11,236 +11,232 @@ from mysql.connector import Error
 
 cr.init(autoreset=True)
 
-token = '5677357335:AAGauZANKo0qIspAMXJIPLqUixlrqYuhZ9Y'
-a_token = 'ca48cd29edf80e30a57a8d705172fc2a97cf5c60653b421046eafe30cebb9ad1f51227b7f7002e3dc5c756c71c7ff9c1a1103bf49fd34ed6'
-ban_url = "https://irvpn.co/adminapi/ban_user"
-ban_message = "سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد"
+class BrookData:
+    def __init__(self):
+        self.token = '5677357335:AAGauZANKo0qIspAMXJIPLqUixlrqYuhZ9Y'
+        self.a_token = 'ca48cd29edf80e30a57a8d705172fc2a97cf5c60653b421046eafe30cebb9ad1f51227b7f7002e3dc5c756c71c7ff9c1a1103bf49fd34ed6'
+        self.ban_url = "https://irvpn.co/adminapi/ban_user"
+        self.ban_message = "سلام وقت بخیر \n با عرض پوزش اکانت شما بن شد"
 
-limit_users_transfer = 1024
-limit_vip_users_transfer = 5120
-warning_users_transfer = 700
-warning_vip_users_transfer = 4000
+        self.limit_users_transfer = 1024
+        self.limit_vip_users_transfer = 5120
+        self.warning_users_transfer = 700
+        self.warning_vip_users_transfer = 4000
 
-vip_users = ['jarvis_sky', 'Aliafagh']
-ultimate_user = 'mortezaparsa'
+        self.vip_users = ['jarvis_sky', 'Aliafagh']
+        self.ultimate_user = 'mortezaparsa'
 
+        # Get All Baned Users
+        self.baned_users = self.read_baned_users()
 
-def warning_message(calc: int):
-    return f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید"
+    def warning_message(self, calc: int):
+        return f"سلام وقت بخیر \n هشدار بن اکانت : شما تا الان {calc} مگابایت مصرف کرده اید"
 
+    def send_telegram_message(self, reciver_id: str, message: str):
+        bot = telepot.Bot(self.token)
+        bot.sendMessage(reciver_id, message)
 
-def send_telegram_message(reciver_id: str, message: str):
-    bot = telepot.Bot(token)
-    bot.sendMessage(reciver_id, message)
+    def read_baned_users(self):
+        with open('baned_users_list.txt', 'r') as openfile:
+            # Reading from json file
+            baned_users_list = openfile.readlines()
+            openfile.close()
 
-def read_baned_users():
-    with open('baned_users_list.txt', 'r') as openfile:
-        # Reading from json file
-        baned_users_list= openfile.readlines()
-        openfile.close()
+        return baned_users_list
 
-    return baned_users_list
+    def write_ban_user(self):
+        with open('baned_users_list.txt', 'w') as openfile:
+            # Writing from List
+            for baned_user in self.baned_users:
+                u = baned_user.split()[0]
+                openfile.write(u)
+                openfile.write("\n")
 
-def write_ban_user(baned_users:list):
-    with open('baned_users_list.txt', 'w') as openfile:
-        # Writing from List
-        for baned_user in baned_users:
-            u=baned_user.split()[0]
-            openfile.write(u)
-            openfile.write("\n")
+            openfile.close()
 
-        openfile.close()
+    def check_if_user_is_baned(self, username: str):
+        # print(baned_users)
+        for baned_user in self.baned_users:
+            u = baned_user.split()[0]
+            if u == username:
+                return True
 
-def check_if_user_is_baned(username:str,baned_users:list):
-    # print(baned_users)
-    for baned_user in baned_users:
-        u=baned_user.split()[0]
-        if u==username:
-            return True
-        
-    return False
-
-def request_ban_user(id: str):
-    try:
-        post_data = {'id': id, 'token': a_token}
-
-        res = requests.post(ban_url, json=post_data)
-        if str(res) == "<Response [200]>":
-            return True
-        else:
-            print(f"{cr.Fore.RED}{res}")
-            return False
-    except Error as e:
-        print(f"{cr.Fore.RED}Error while connecting to MySQL", e)
         return False
 
-
-def ban_user(id: str,username:str,baned_users:list):
-    counter = 0
-    while counter <= 5:
-        result = request_ban_user(id)
-        if result == True:
-            baned_users.append(f"{username}\n")
-            write_ban_user(baned_users)
-            return True
-
-        counter = counter+1
-    return False
-
-
-# def create_thread(id:str):
-#     threading.Thread(target=ban_user,args=(id)).start()
-
-
-def get_users():
-    counter = 0
-    while counter <= 5:
+    def request_ban_user(self, id: str):
         try:
-            connection = mysql.connector.connect(host='198.244.140.109',
-                                                 database='brook',
-                                                 user='jarvis',
-                                                 password='MH75d$4s#d9.f6bF')
-            if connection.is_connected():
-                cursor = connection.cursor()
-                query = "SELECT * FROM user"
-                cursor.execute(query)
-                res = cursor.fetchall()
-                return res
-            else:
-                return False
+            post_data = {'id': id, 'token': self.a_token}
 
+            res = requests.post(self.ban_url, json=post_data)
+            if str(res) == "<Response [200]>":
+                return True
+            else:
+                print(f"{cr.Fore.RED}{res}")
+                return False
         except Error as e:
             print(f"{cr.Fore.RED}Error while connecting to MySQL", e)
-            if connection.is_connected():
-                cursor.close()
-                connection.close()
-                print("MySQL connection is closed")
             return False
 
+    def ban_user(self, id: str, username: str):
+        counter = 0
+        while counter <= 5:
+            result = self.request_ban_user(id)
+            if result == True:
+                self.baned_users.append(f"{username}\n")
+                self.write_ban_user()
+                return True
 
-def read_transfer_users_data():
-    with open('transfers_brook_list.json', 'r') as openfile:
-        # Reading from json file
-        json_objects = json.load(openfile)
-        openfile.close()
+            counter = counter+1
+        return False
 
-    return json_objects
+    # def create_thread(id:str):
+    #     threading.Thread(target=ban_user,args=(id)).start()
 
+    def get_users(self):
+        counter = 0
+        while counter <= 5:
+            try:
+                connection = mysql.connector.connect(host='198.244.140.109',
+                                                     database='brook',
+                                                     user='jarvis',
+                                                     password='MH75d$4s#d9.f6bF')
+                if connection.is_connected():
+                    cursor = connection.cursor()
+                    query = "SELECT * FROM user"
+                    cursor.execute(query)
+                    res = cursor.fetchall()
+                    return res
+                else:
+                    return False
 
-def proccess_data(get_users_result: list, transfer_users_data: list,baned_users:list):
-    for row in get_users_result:
-        if row[1] != ultimate_user:
-            for data in transfer_users_data:
-                if data['user'] == row[1]:
-                    last_transfer = int(data['transfer'])
-                    current_transfer = int(row[7])
-                    calc = current_transfer-last_transfer
-                    for vip_user in vip_users:
-                        if data['user'] == vip_user:
-                            if calc > limit_vip_users_transfer:
-                                # User Should Be Banne
-                                s = f"user: {row[1]} transfer: {calc}"
-                                print(
-                                    f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.CYAN}VIP {cr.Fore.YELLOW}{s}")
+            except Error as e:
+                print(f"{cr.Fore.RED}Error while connecting to MySQL", e)
+                if connection.is_connected():
+                    cursor.close()
+                    connection.close()
+                    print("MySQL connection is closed")
+                return False
 
-                                # Baning Acount
-                                if not check_if_user_is_baned(row[1],baned_users):
-                                    ban_result = ban_user(row[0],row[1],baned_users)
-                                    if ban_result:
-                                        print(
-                                            f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
-                                    else:
-                                        print(
-                                            f"{cr.Fore.RED} User {row[1]} Not Baned!!!")
+    def read_transfer_users_data(self):
+        with open('transfers_brook_list.json', 'r') as openfile:
+            # Reading from json file
+            json_objects = json.load(openfile)
+            openfile.close()
 
-                                    # Senging Message On Telegram
+        return json_objects
+
+    def proccess_data(self, get_users_result: list, transfer_users_data: list):
+        for row in get_users_result:
+            if row[1] != self.ultimate_user:
+                for data in transfer_users_data:
+                    if data['user'] == row[1]:
+                        last_transfer = int(data['transfer'])
+                        current_transfer = int(row[7])
+                        calc = current_transfer-last_transfer
+                        for vip_user in self.vip_users:
+                            if data['user'] == vip_user:
+                                if calc > self.limit_vip_users_transfer:
+                                    # User Should Be Banne
+                                    s = f"user: {row[1]} transfer: {calc}"
+                                    print(
+                                        f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.CYAN}VIP {cr.Fore.YELLOW}{s}")
+
+                                    # Baning Acount
+                                    if not self.check_if_user_is_baned(username=row[1]):
+                                        ban_result = self.ban_user(
+                                            id=row[0], username=row[1])
+                                        if ban_result:
+                                            print(
+                                                f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
+                                        else:
+                                            print(
+                                                f"{cr.Fore.RED} User {row[1]} Not Baned!!!")
+
+                                        # Senging Message On Telegram
+                                        if "id_telegram" in data:
+                                            self.send_telegram_message(
+                                                reciver_id=data['id_telegram'], message=self.ban_message)
+                                        else:
+                                            print(
+                                                f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
+
+                                elif calc > self.warning_vip_users_transfer:
+                                    # Send Warning Message
+                                    s = f"user: {row[1]} transfer: {calc}"
+                                    print(
+                                        f"{cr.Fore.YELLOW}Warning for {cr.Fore.CYAN}VIP {cr.Fore.WHITE}{s}")
+
+                                    # Sending Telegram Message
                                     if "id_telegram" in data:
-                                        send_telegram_message(
-                                            data['id_telegram'], ban_message)
+                                        self.send_telegram_message(
+                                            reciver_id=data['id_telegram'], message=self.warning_message(calc=calc))
                                     else:
                                         print(
                                             f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
 
-                            elif calc > warning_vip_users_transfer:
-                                # Send Warning Message
-                                s = f"user: {row[1]} transfer: {calc}"
-                                print(
-                                    f"{cr.Fore.YELLOW}Warning for {cr.Fore.CYAN}VIP {cr.Fore.WHITE}{s}")
+                                # exit from loop after user doesn't touch limit
+                                break
+                        # print(f"user: {data['user']} calc : {calc}")
+                        if calc > self.limit_users_transfer:
+                            # User Should Be Banne
+                            s = f"user: {row[1]} transfer: {calc}"
+                            print(
+                                f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.YELLOW}{s}")
+
+                            # Baning Acount
+                            if not self.check_if_user_is_baned(username=row[1]):
+                                ban_result = self.ban_user(
+                                    id=row[0], username=row[1])
+                                if ban_result:
+                                    print(
+                                        f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
+                                else:
+                                    print(
+                                        f"{cr.Fore.RED} User {row[1]} Not Baned!!!")
 
                                 # Sending Telegram Message
                                 if "id_telegram" in data:
-                                    send_telegram_message(
-                                        data['id_telegram'], warning_message(calc))
+                                    self.send_telegram_message(
+                                        reciver_id=data['id_telegram'], message=self.ban_message)
                                 else:
                                     print(
                                         f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
 
-                            # exit from loop after user doesn't touch limit
-                            break
-                    # print(f"user: {data['user']} calc : {calc}")
-                    if calc > limit_users_transfer:
-                        # User Should Be Banne
-                        s = f"user: {row[1]} transfer: {calc}"
-                        print(
-                            f"{cr.Fore.RED}Max Transfer Found On {cr.Fore.YELLOW}{s}")
-
-                        # Baning Acount
-                        if not check_if_user_is_baned(row[1],baned_users):
-                            ban_result = ban_user(row[0],row[1],baned_users)
-                            if ban_result:
-                                print(
-                                    f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
-                            else:
-                                print(f"{cr.Fore.RED} User {row[1]} Not Baned!!!")
+                        elif calc > self.warning_users_transfer:
+                            # Send Warning Message
+                            s = f"user: {row[1]} transfer: {calc}"
+                            print(
+                                f"{cr.Fore.YELLOW}Warning for {cr.Fore.WHITE}{s}")
 
                             # Sending Telegram Message
                             if "id_telegram" in data:
-                                send_telegram_message(
-                                    data['id_telegram'], ban_message)
+                                self.send_telegram_message(
+                                    reciver_id=data['id_telegram'], message=self.warning_message(calc=calc))
                             else:
                                 print(
                                     f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
 
-                    elif calc > warning_users_transfer:
-                        # Send Warning Message
-                        s = f"user: {row[1]} transfer: {calc}"
-                        print(f"{cr.Fore.YELLOW}Warning for {cr.Fore.WHITE}{s}")
-
-                        # Sending Telegram Message
-                        if "id_telegram" in data:
-                            send_telegram_message(
-                                data['id_telegram'], warning_message(calc))
-                        else:
-                            print(
-                                f"{cr.Fore.MAGENTA}ID Is Not Exitst For {cr.Fore.CYAN}{data['user']} {cr.Fore.MAGENTA}And Message Not Sent!")
-
-                    # exit from loop after user doesn't touch limit
-                    break
+                        # exit from loop after user doesn't touch limit
+                        break
 
 
-def check_brook_database():
-
-    get_users_result = get_users()
-
-    if get_users_result is False:
-        print(f"{cr.Fore.RED}Users Info Was Not Downloaded!!!")
-        exit()
-
-    else:
-        # Get All Old Transfer Users Data
-        transfer_users_data = read_transfer_users_data()
-
-        # Get All Baned Users
-        baned_users=read_baned_users()
-
-        # Proccess Data
-        proccess_data(get_users_result, transfer_users_data,baned_users)
-
-#-------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 # schedule.every(1).minutes.do(check_brook_database)
 
 # while True:
 #     schedule.run_pending()
 #     time.sleep(1)
 
-check_brook_database()
+bd = BrookData()
+get_users_result = bd.get_users()
+
+if get_users_result is False:
+    print(f"{cr.Fore.RED}Users Info Was Not Downloaded!!!")
+    exit()
+
+else:
+    # Get All Old Transfer Users Data
+    transfer_users_data = bd.read_transfer_users_data()
+
+    # Proccess Data
+    bd.proccess_data(get_users_result, transfer_users_data)
