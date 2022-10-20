@@ -251,6 +251,9 @@ def start():
 
         # Proccess Data
         bd.proccess_data(get_users_result, transfer_users_data)
+        
+        # Sending Seprator
+        bd.send_telegram_message("-"*59)
 
     print(f"{cr.Fore.BLUE}-"*50)
 
