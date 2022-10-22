@@ -69,19 +69,20 @@ class BrookData:
         return baned_users_list
 
     def write_ban_user(self):
+        # Writing file
         with open('baned_users_list.txt', 'w') as openfile:
             # Writing from List
             for baned_user in self.baned_users:
-                u = baned_user.split()[0]
+                temp_user_info=baned_user.split(',')
+                u = f"{temp_user_info[0]},{temp_user_info[1]}"
                 openfile.write(u)
-                openfile.write("\n")
 
             openfile.close()
 
     def check_if_user_is_baned(self, username: str):
         # print(baned_users)
         for baned_user in self.baned_users:
-            u = baned_user.split()[0]
+            u = baned_user.split(',')[0]
             if u == username:
                 return True
 
@@ -101,12 +102,12 @@ class BrookData:
             print(f"{cr.Fore.RED}Error while Baning User", e)
             return False
 
-    def ban_user(self, id: str, username: str):
+    def ban_user(self, id: str, username: str,transfer:int):
         counter = 0
         while counter <= 5:
             result = self.request_ban_user(id)
             if result == True:
-                self.baned_users.append(f"{username}\n")
+                self.baned_users.append(f"{username},{transfer}\n")
                 self.write_ban_user()
                 return True
 
@@ -167,7 +168,7 @@ class BrookData:
                                     # Baning Acount
                                     if not self.check_if_user_is_baned(username=row[1]):
                                         ban_result = self.ban_user(
-                                            id=row[0], username=row[1])
+                                            id=row[0], username=row[1],transfer=calc)
                                         if ban_result:
                                             print(
                                                 f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
@@ -206,7 +207,7 @@ class BrookData:
                             # Baning Acount
                             if not self.check_if_user_is_baned(username=row[1]):
                                 ban_result = self.ban_user(
-                                    id=row[0], username=row[1])
+                                    id=row[0], username=row[1],transfer=calc)
                                 if ban_result:
                                     print(
                                         f"{cr.Fore.CYAN} User {row[1]} Successfuly Baned.")
