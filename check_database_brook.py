@@ -41,7 +41,7 @@ class BrookData:
                 return True
 
             else:
-                # print(f"{cr.Fore.RED}{res}")
+                print(f"{cr.Fore.RED}{res}")
                 return False
 
         except Error as e:
@@ -52,6 +52,7 @@ class BrookData:
         link = f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={self.reciver_id}&text={message}"
         counter = 0
         while counter <= 5:
+            time.sleep(1)
             result = self.request_send_telegram_message(link=link)
             if result == True:
                 return True
