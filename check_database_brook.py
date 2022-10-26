@@ -52,7 +52,7 @@ class BrookData:
         link = f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={self.reciver_id}&text={message}"
         counter = 0
         while counter <= 5:
-            time.sleep(1)
+            time.sleep(2)
             result = self.request_send_telegram_message(link=link)
             if result == True:
                 return True
@@ -106,6 +106,7 @@ class BrookData:
     def ban_user(self, id: str, username: str, transfer: int):
         counter = 0
         while counter <= 5:
+            time.sleep(1)
             result = self.request_ban_user(id)
             if result == True:
                 self.baned_users.append(f"{username},{transfer}\n")
