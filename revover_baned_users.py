@@ -67,6 +67,20 @@ class RecoveryBanedUsers:
        
        print(f"{cr.Fore.GREEN}All Transfers Users Data Was Writed.")
 
+    def request_recover_user(self, id: str):
+        try:
+            post_data = {'id': id, 'token': self.a_token}
+
+            res = requests.post(self.recover_url, json=post_data)
+            if str(res) == "<Response [200]>":
+                return True
+            else:
+                print(f"{cr.Fore.RED}{res}")
+                return False
+        except Error as e:
+            print(f"{cr.Fore.RED}Error while Baning User", e)
+            return False
+
     def recover_baned_user(self,id:str,username:str):
         counter = 0
         while counter <= 5:
