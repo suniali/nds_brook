@@ -22,6 +22,10 @@ class BrookData:
         self.warning_users_transfer = 700
         self.warning_vip_users_transfer = 4000
 
+        self.default_baned_count=1
+        self.default_baned_time=24
+
+        self.transfers_users_data=[]
         self.vip_users = ['jarvis_sky', 'Aliafagh']
         self.ultimate_user = 'mortezaparsa'
 
@@ -88,6 +92,7 @@ class BrookData:
                 return True
 
         return False
+            
 
     def request_ban_user(self, id: str):
         try:
@@ -103,12 +108,44 @@ class BrookData:
             print(f"{cr.Fore.RED}Error while Baning User", e)
             return False
 
+    def save_transfers_users_data(self):
+        transfers_users_list = json.dumps(self.transfers_users_data)
+        with open("transfers_brook_list.json", "w") as outfile:
+            outfile.write(transfers_users_list)
+            outfile.close()
+        
+        print(f"{cr.Fore.GREEN}All Transfers Users Data Was Writed.")
+
+    def set_ban_time_proccess(self,id:str , username:str):
+        for data in self.transfers_users_data:
+            if data['user']==username:
+                if 'baned_count' in data.keys():
+                    # Update Objects
+                    baned_count=int(data['baned_count'])+1
+                    user_time=int(data['time'])+(baned_count*self.default_baned_time)
+                    objects={'baned_count':baned_count,'time':user_time}
+                    data.update(objects)
+
+                else:
+                    # Set First Ban User Objects
+                    objects={'baned_count':self.default_baned_count,'time':self.default_baned_time}
+                    data.update(objects)
+                
+                break
+        
+        # Write In To File
+        self.save_transfers_users_data()
+
     def ban_user(self, id: str, username: str, transfer: int):
         counter = 0
         while counter <= 5:
             time.sleep(1)
             result = self.request_ban_user(id)
             if result == True:
+                # Set Ban Time Proccess
+                self.set_ban_time_proccess(id,username)
+
+                # Write Baned Users In Text File
                 self.baned_users.append(f"{username},{transfer}\n")
                 self.write_ban_user()
                 return True
@@ -150,12 +187,12 @@ class BrookData:
             json_objects = json.load(openfile)
             openfile.close()
 
-        return json_objects
+        self.transfers_users_data = json_objects
 
-    def proccess_data(self, get_users_result: list, transfer_users_data: list):
+    def proccess_data(self, get_users_result: list):
         for row in get_users_result:
             if row[1] != self.ultimate_user:
-                for data in transfer_users_data:
+                for data in self.transfers_users_data:
                     if data['user'] == row[1]:
                         last_transfer = int(data['transfer'])
                         current_transfer = int(row[7])
@@ -252,10 +289,10 @@ def start():
 
     else:
         # Get All Old Transfer Users Data
-        transfer_users_data = bd.read_transfer_users_data()
+        bd.read_transfer_users_data()
 
         # Proccess Data
-        bd.proccess_data(get_users_result, transfer_users_data)
+        bd.proccess_data(get_users_result)
 
         # Sending Seprator
         bd.send_telegram_message("-"*59)
