@@ -1,4 +1,3 @@
-from itertools import count
 import json
 import time
 import requests
