@@ -36,12 +36,23 @@ class SetData:
                     connection.close()
                 return False
 
+    def read_transfer_users_data(self):
+       with open('transfers_brook_list.json', 'r') as openfile:
+           # Reading from json file
+           json_objects = json.load(openfile)
+           openfile.close()
+
+       return json_objects
+
     def write_transfers_users_data(self,users_data:list) -> None:
-        d=[]
+        d=self.read_transfer_users_data()
         #Writing To Transfer Brook List Database
-        for user in users_data:
-            s={"id":user[0],"user": user[1],"transfer": user[7]}
-            d.append(s)
+        for data in users_data:
+            for user in d:
+                if data[1]== user['user']:
+                    s={"transfer": data[7]}
+                    user.update(s)
+                    break
 
         # print(d)
         json_object = json.dumps(d)
@@ -90,7 +101,7 @@ def start():
     
 
 # -------------------------------------------------------------------------------------------
-schedule.every(24).hour.do(start)
+schedule.every(1).minute.do(start)
 
 while True:
     schedule.run_pending()
