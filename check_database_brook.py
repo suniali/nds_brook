@@ -23,6 +23,7 @@ class BrookData:
 
         self.default_baned_count=1
         self.default_baned_time=24
+        self.max_baned_time=48
 
         self.transfers_users_data=[]
         self.vip_users = ['jarvis_sky', 'Aliafagh']
@@ -121,7 +122,8 @@ class BrookData:
                 if 'baned_count' in data.keys():
                     # Update Objects
                     baned_count=int(data['baned_count'])+1
-                    user_time=int(data['time'])+(baned_count*self.default_baned_time)
+                    # user_time=int(data['time'])+(baned_count*self.default_baned_time)
+                    user_time=self.max_baned_time
                     objects={'baned_count':baned_count,'time':user_time}
                     data.update(objects)
 
