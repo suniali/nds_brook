@@ -133,7 +133,7 @@ def start():
     print(f"{cr.Fore.BLUE}-"*50)
 
 # -------------------------------------------------------------------------------------------
-schedule.every(1).minutes.do(start)
+schedule.every(1).hours.do(start)
 
 while True:
     schedule.run_pending()
