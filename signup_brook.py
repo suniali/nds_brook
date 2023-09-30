@@ -4,8 +4,9 @@ import colorama as cr
 
 cr.init(autoreset=True)
 
-signup_url='https://irvpn.co/userapi/signup'
-signin_url='https://irvpn.co/userapi/signin'
+signup_url='https://irvpn.co:9991/userapi/signup'
+signin_url='https://irvpn.co:9991/userapi/signin'
+brook_get_link='https://irvpn.co:9991/brook_link.txt?token='
 
 print("Enter The Username: ")
 username=input()
@@ -24,9 +25,10 @@ if str(res)=="<Response [200]>" :
     res2 = requests.post(signin_url,json=post_data)
     if str(res2)=="<Response [200]>":
         data=json.loads(res2.text)
-        link=f"https://irvpn.co/brook_link.txt?token={data['token']}&level=0"
+        link=f"{brook_get_link}{data['token']}&level=0"
         res3=requests.get(link)
-        prime_link=res3.text.replace("198.244.140.109","195.28.11.20")
+        # prime_link=res3.text.replace("198.244.140.109","195.28.11.20")
+        prime_link=res3.text
         print("Connection Link Is:")
         print(prime_link)
 

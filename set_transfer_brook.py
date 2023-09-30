@@ -101,7 +101,7 @@ def start():
     
 
 # -------------------------------------------------------------------------------------------
-schedule.every(1).minute.do(start)
+schedule.every(24).hours.do(start)
 
 while True:
     schedule.run_pending()

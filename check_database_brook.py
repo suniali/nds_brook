@@ -18,8 +18,8 @@ class BrookData:
 
         self.limit_users_transfer = 1024
         self.limit_vip_users_transfer = 5120
-        self.warning_users_transfer = 700
-        self.warning_vip_users_transfer = 4000
+        self.warning_users_transfer = 600
+        self.warning_vip_users_transfer = 3000
 
         self.default_baned_count=1
         self.default_baned_time=24
@@ -199,6 +199,8 @@ class BrookData:
                         current_transfer = int(row[7])
                         calc = current_transfer-last_transfer
 
+                        # print(f"username: {data['user']} transfer:{calc}")
+
                         if data['user'] in self.vip_users:
                             if calc > self.limit_vip_users_transfer:
                                 # User Should Be Banne
@@ -224,18 +226,18 @@ class BrookData:
                                         print(
                                             f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
 
-                                elif calc > self.warning_vip_users_transfer:
-                                    # Send Warning Message
-                                    s = f"user: {row[1]} transfer: {calc}"
-                                    print(
-                                        f"{cr.Fore.YELLOW}Warning for {cr.Fore.CYAN}VIP {cr.Fore.WHITE}{s}")
+                            elif calc > self.warning_vip_users_transfer:
+                                # Send Warning Message
+                                s = f"user: {row[1]} transfer: {calc}"
+                                print(
+                                    f"{cr.Fore.YELLOW}Warning for {cr.Fore.CYAN}VIP {cr.Fore.WHITE}{s}")
 
-                                    # Sending Telegram Message
-                                    telegram_result = self.send_telegram_message(
-                                        message=self.warning_message(username=row[1], calc=calc))
-                                    if not telegram_result:
-                                        print(
-                                            f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
+                                # Sending Telegram Message
+                                telegram_result = self.send_telegram_message(
+                                    message=self.warning_message(username=row[1], calc=calc))
+                                if not telegram_result:
+                                    print(
+                                        f"{cr.Fore.RED} Message Not Sended For {row[1]} User !!!!")
 
                         # print(f"user: {data['user']} calc : {calc}")
                         elif calc > self.limit_users_transfer:

@@ -102,10 +102,19 @@ class RecoveryBanedUsers:
 
         return False
 
+    def not_recovered_user(self,username:str):
+        with open("not_recovered.txt",'a') as file:
+            file.write(username)
+            file.write("\n")
+            file.close()
+        
+        print(f"User {cr.Fore.RED}{username} {cr.Fore.GREEN}Writed To The File Successfully.")
+
     def check_users_proccess(self):
         for data in self.transfers_users_data:
             if 'baned_count' in data.keys():
                 user_time=int(data['time'])
+                # print(f"usernaem : {data['user']} user time : {user_time}")
                 if user_time != 0:
                     # Update User Time
                     user_time=user_time-1
@@ -116,7 +125,8 @@ class RecoveryBanedUsers:
                         # Write To Json File
                         self.save_transfers_users_data()
 
-                    elif user_time <= 0:
+                    elif user_time <= 1:
+                        print(f"Recovering {data['user']} ...")
                         object={'time':user_time}
                         data.update(object)
 
@@ -124,9 +134,13 @@ class RecoveryBanedUsers:
                         self.save_transfers_users_data()
 
                         # Recover Baned User
-                        revocer_user_result=self.recover_baned_user(data['id'],data['user'])
-                        if not revocer_user_result:
-                            print(f"{cr.Fore.RED} User {data['user']} Not Recoverd !!!")
+                        if "id" in data.keys():
+                            revocer_user_result=self.recover_baned_user(data['id'],data['user'])
+                            if not revocer_user_result:
+                                print(f"{cr.Fore.RED} User {data['user']} Not Recoverd !!!")
+                        else:
+                            print(f"{cr.Fore.RED} User {data['user']} Not Recoverd Because Have No ID !!!")
+                            self.not_recovered_user(data['user'])
 
                         # Sending Seprator
                         self.send_telegram_message("-"*59)
